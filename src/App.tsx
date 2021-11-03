@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 import './App.css';
-import { Container, Row, Button, Tabs, Tab, Form, Dropdown, InputGroup, FormControl, Alert } from 'react-bootstrap';
+import { Container, Row, Button, Tabs, Tab, Dropdown, InputGroup, FormControl, Alert } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Liste, ListenEintrag } from './components/List';
 import VKMittel from "./components/VKMittel";
@@ -29,19 +29,17 @@ class App extends React.Component {
   state = {
     liste: tage.reduce((o, key) => Object.assign(o, { [key]: [] }), {}) as { [key: string]: ListenEintrag[]; },
     aktiverTag: tage[0],
-    inputKM: 0,
+    inputKM: "",
     inputVK: verkehrsMittel[0],
     co2Woche: 0,
     co2Semester: 0,
     alertState: "success"
   };
 
-  componentDidMount(){
-    document.title = "CO2 Bilanz"
-  }
 
   addValue = () => {
-    this.state.liste[this.state.aktiverTag].push(new ListenEintrag(this.state.inputKM, this.state.inputVK));
+
+    this.state.liste[this.state.aktiverTag].push(new ListenEintrag(parseFloat(this.state.inputKM), this.state.inputVK));
 
     this.setState({ liste: this.state.liste });
 
@@ -59,25 +57,25 @@ class App extends React.Component {
     co2Woche = Math.round(co2Woche * 10) / 10;
 
     this.setState({ co2Woche: co2Woche });
-    this.setState({ co2Semester: Math.round(co2Woche * 14 * 10) / 10});
+    this.setState({ co2Semester: Math.round(co2Woche * 14 * 10) / 10 });
 
-    if(co2Woche < 20) this.setState({alertState: "success"});
-    else if(co2Woche < 40) this.setState({alertState: "warning"});
-    else this.setState({alertState: "danger"});
+    if (co2Woche < 20) this.setState({ alertState: "success" });
+    else if (co2Woche < 40) this.setState({ alertState: "warning" });
+    else this.setState({ alertState: "danger" });
+
+    this.setState({inputKM: ""});
   };
 
   render() {
     return (
       <div className="App">
         <header className="App-header">
-          <title>CO2 Bilanz</title>
-          <h1>CO2 Bilanz</h1>
-          <h2>Berechne deinen CO2 Ausstoß auf deinem Weg zur Hochschule</h2>
+          <h3>Für viel CO2 produziere ich eigentlich auf dem Weg zu der Hochschule?</h3>
         </header>
 
         <main className="p-1">
-          <Container className="mt-5">
-            <h3 className="text-left">Wähle das Verkehrsmittel aus und trage die zurückgelegten Kilometer für die jeweiligen Wochentage ein!</h3>
+          <Container className="mt-4">
+            <h3 className="text-left">Trage für die jeweiligen Verkehrsmittel die zurückgelegten Kilometer für die jeweiligen Wochentage ein!</h3>
             <Row className="my-3">
               <Tabs variant="pills" defaultActiveKey={this.state.aktiverTag} onSelect={e => this.setState({ aktiverTag: e })}>
                 {tage.map(tag => (
@@ -87,29 +85,29 @@ class App extends React.Component {
             </Row>
 
             <Row className="my-3 p-0">
-              <Form className="p-0" onSubmit={this.addValue} action="#">
-                <InputGroup className="mb-3 p-0">
-                  <Dropdown onSelect={e => this.setState({ inputVK: verkehrsMittel.filter(x => x.name === e)[0] })}>
-                    <Dropdown.Toggle variant="success" id="verkehrsmittel">
-                      {this.state.inputVK.name}
-                    </Dropdown.Toggle>
+              <InputGroup className="mb-3 p-0">
+                <Dropdown onSelect={e => this.setState({ inputVK: verkehrsMittel.filter(x => x.name === e)[0] })}>
+                  <Dropdown.Toggle variant="success" id="verkehrsmittel">
+                    {this.state.inputVK.name}
+                  </Dropdown.Toggle>
 
-                    <Dropdown.Menu defaultValue={this.state.inputVK.name}>
-                      {verkehrsMittel.map(vk => (
-                        <Dropdown.Item eventKey={vk.name}>{vk.name}</Dropdown.Item>
-                      ))}
-                    </Dropdown.Menu>
+                  <Dropdown.Menu defaultValue={this.state.inputVK.name}>
+                    {verkehrsMittel.map(vk => (
+                      <Dropdown.Item eventKey={vk.name}>{vk.name}</Dropdown.Item>
+                    ))}
+                  </Dropdown.Menu>
 
-                  </Dropdown>
+                </Dropdown>
 
-                  <FormControl type="number" id="strecke" aria-describedby="basic-addon3" placeholder="Distanz (km)"
-                    value={this.state.inputKM} onChange={e => this.setState({ inputKM: e.target.value.replaceAll(",", ".") })} />
+                <FormControl type="number" id="strecke" aria-describedby="basic-addon3" placeholder="Distanz (km)"
+                  value={this.state.inputKM}
+                  onChange={e => this.setState({ inputKM: e.target.value})} 
+                  />
 
-                  <Button variant="outline-secondary" id="addButton" onClick={this.addValue}>
+                <Button variant="outline-secondary" id="addButton" onClick={this.addValue}>
                   ➕
-                  </Button>
-                </InputGroup>
-              </Form>
+                </Button>
+              </InputGroup>
             </Row>
 
             <Row>
@@ -117,19 +115,21 @@ class App extends React.Component {
             </Row>
 
             <Row className="my-5">
-              <h1 className="text-left">Dein CO2 Austoß:</h1>
-              
+              <h2 className="text-left">Dein CO2 Ausstoß:</h2>
+
               <Alert variant={this.state.alertState}>
                 <h2 className="text-left">pro Woche: {this.state.co2Woche}kg</h2>
                 <h2 className="text-left">pro Semester: {this.state.co2Semester}kg</h2>
               </Alert>
+
+                  <h4 className="text-left">⚠️ Alle werte sind mit Vorkette! Das heißt, dass nicht nur der direkte CO2 Ausstoß berücksichtigt wird, sondern auch anderweitig entstandene Emmissionen (z.B bei Produktion)</h4>
             </Row>
 
           </Container>
         </main>
 
         <footer className="App-footer">
-        <p style={{fontSize: 15}}>Copyright © 2021 Hendrik Mennen</p>
+          <p style={{ fontSize: 15 }}>Copyright © 2021 Hendrik Mennen</p>
         </footer>
       </div>
     );
