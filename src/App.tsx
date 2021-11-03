@@ -70,7 +70,7 @@ class App extends React.Component {
     return (
       <div className="App">
         <header className="App-header">
-          <h3>Für viel CO2 produziere ich eigentlich auf dem Weg zu der Hochschule?</h3>
+          <h3>Wie viel CO2 produziere ich auf dem Weg zu der Hochschule?</h3>
         </header>
 
         <main className="p-1">
